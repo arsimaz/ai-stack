@@ -14,12 +14,19 @@ command -v claude >/dev/null || { no "claude CLI not found"; exit 1; }
 echo "== marketplace"
 claude plugin marketplace add "$REPO" >/dev/null 2>&1 \
   && ok "added $REPO" || ok "$REPO already registered"
+# claude-mem lives in a subdirectory of its repo; re-exporting it does not work
+# (the `path` field is ignored), so add its upstream marketplace directly.
+claude plugin marketplace add thedotmack/claude-mem >/dev/null 2>&1 \
+  && ok "added thedotmack (for claude-mem)" || ok "thedotmack already registered"
 
 echo "== plugins"
-for p in arsimaz-core superpowers obsidian ui-ux-pro-max claude-mem gsd-core; do
+for p in arsimaz-core superpowers obsidian ui-ux-pro-max; do
   claude plugin install "$p@arsimaz" -y >/dev/null 2>&1 && ok "$p" || no "$p (run manually)"
 done
-echo "  (ecc omitted — 903 skills. Add with: claude plugin install ecc@arsimaz)"
+claude plugin install claude-mem@thedotmack -y >/dev/null 2>&1 && ok "claude-mem" || no "claude-mem"
+echo "  (omitted by weight — add explicitly if you want them:)"
+echo "     gsd-core  144 skills / 64 agents : claude plugin install gsd-core@arsimaz"
+echo "     ecc       903 skills / 68 agents : claude plugin install ecc@arsimaz"
 
 if [[ "${1:-}" == "--mcp" || "${2:-}" == "--mcp" ]]; then
   echo "== mcp"

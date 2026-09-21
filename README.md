@@ -27,6 +27,40 @@ Or clone and run `./install.sh` to get everything at once.
 | Codex / Cursor / OpenCode / Gemini | `AGENTS.md` at the repo root (`CLAUDE.md` and `GEMINI.md` symlink to it); `./install.sh --link` symlinks the skills dir |
 | Other people | make the repo public — anyone can `marketplace add` it |
 
+## Known limitation: subdirectory plugins
+
+A marketplace can re-export a third-party plugin that sits at its **repo root**.
+It cannot re-export one that lives in a **subdirectory** — the `path` field on a
+`github` source is silently ignored, and you get the repo root instead (which
+installs with zero components, with no error).
+
+`claude-mem` is such a plugin (`thedotmack/claude-mem` → `./plugin`), so it is
+NOT in this marketplace. `install.sh` adds its upstream marketplace instead:
+
+```bash
+claude plugin marketplace add thedotmack/claude-mem
+claude plugin install claude-mem@thedotmack
+```
+
+Verify any re-export actually landed with `claude plugin details <name>` — a
+zero-component inventory means the source path is wrong.
+
+## Weight
+
+Measured with `claude plugin details` after install:
+
+| Plugin | Skills | Agents | Hooks |
+|---|---|---|---|
+| obsidian | 6 | 0 | 0 |
+| ui-ux-pro-max | 7 | 0 | 0 |
+| superpowers | 15 | 0 | 1 |
+| claude-mem | 20 | 0 | 7 |
+| gsd-core | 144 | 64 | 7 |
+| ecc | ~903 | 68 | 6 |
+
+`gsd-core` and `ecc` are an order of magnitude heavier than the rest. Both are
+excluded from `install.sh`'s default set for that reason.
+
 ## Layout
 
 ```
