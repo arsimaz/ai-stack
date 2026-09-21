@@ -15,7 +15,18 @@ claude plugin marketplace add arsimaz/ai-stack
 claude plugin install arsimaz-core@arsimaz
 ```
 
-Or clone and run `./install.sh` to get everything at once.
+Or clone and run the installer for your OS:
+
+```bash
+./install.sh      # macOS / Linux
+```
+```bat
+install.bat       :: Windows (cmd or PowerShell)
+```
+
+On Windows, `./install.sh` will not run in cmd — use `install.bat`. Pasting a
+multi-line block into cmd also merges the lines; run one command per line, or
+chain them with `&&` on a single line.
 
 ## Reach, by surface
 
