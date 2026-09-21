@@ -1,0 +1,10 @@
+{
+  "_comment": "Copy into a project as .mcp.json, or apply with ./install.sh --mcp",
+  "mcpServers": {
+    "n8n-mcp": {
+      "command": "npx",
+      "args": ["-y", "n8n-mcp"],
+      "env": { "N8N_API_URL": "${N8N_API_URL}", "N8N_API_KEY": "${N8N_API_KEY}" }
+    }
+  }
+}

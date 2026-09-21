@@ -1,0 +1,7 @@
+{
+  "name": "arsimaz-core",
+  "version": "0.1.0",
+  "description": "Personal skills, commands and agents — single source of truth across every Claude surface",
+  "author": { "name": "arsimaz" },
+  "license": "MIT"
+}
