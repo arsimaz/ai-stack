@@ -21,9 +21,9 @@ claude plugin marketplace add thedotmack/claude-mem >/dev/null 2>&1 \
 
 echo "== plugins"
 for p in arsimaz-core superpowers obsidian ui-ux-pro-max; do
-  claude plugin install "$p@arsimaz" -y >/dev/null 2>&1 && ok "$p" || no "$p (run manually)"
+  claude plugin install "$p@arsimaz" >/dev/null 2>&1 && ok "$p" || no "$p (run manually)"
 done
-claude plugin install claude-mem@thedotmack -y >/dev/null 2>&1 && ok "claude-mem" || no "claude-mem"
+claude plugin install claude-mem@thedotmack >/dev/null 2>&1 && ok "claude-mem" || no "claude-mem"
 echo "  (omitted by weight — add explicitly if you want them:)"
 echo "     gsd-core  144 skills / 64 agents : claude plugin install gsd-core@arsimaz"
 echo "     ecc       903 skills / 68 agents : claude plugin install ecc@arsimaz"
