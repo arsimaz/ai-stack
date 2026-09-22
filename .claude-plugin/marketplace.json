@@ -4,7 +4,7 @@
     "name": "arsimaz"
   },
   "metadata": {
-    "description": "Personal AI stack \u2014 one source of truth for skills, plugins and MCP servers across every Claude surface"
+    "description": "Personal AI stack \u2014 your own plugin, plus an installer that wires up the third-party marketplaces"
   },
   "plugins": [
     {
@@ -12,51 +12,6 @@
       "source": "./plugins/arsimaz-core",
       "version": "0.1.0",
       "description": "Your own skills, commands, agents and hooks"
-    },
-    {
-      "name": "superpowers",
-      "source": {
-        "source": "github",
-        "repo": "obra/superpowers",
-        "protocol": "https"
-      },
-      "description": "Structured execution: TDD, debugging, collaboration skills"
-    },
-    {
-      "name": "obsidian",
-      "source": {
-        "source": "github",
-        "repo": "kepano/obsidian-skills",
-        "protocol": "https"
-      },
-      "description": "Obsidian markdown, .base and .canvas authoring"
-    },
-    {
-      "name": "ui-ux-pro-max",
-      "source": {
-        "source": "github",
-        "repo": "nextlevelbuilder/ui-ux-pro-max-skill",
-        "protocol": "https"
-      },
-      "description": "UI/UX design intelligence: styles, palettes, font pairings"
-    },
-    {
-      "name": "gsd-core",
-      "source": {
-        "source": "github",
-        "repo": "open-gsd/gsd-core",
-        "protocol": "https"
-      },
-      "description": "Spec-driven meta-prompting and execution system \u2014 HEAVY (144 skills, 64 agents, 7 hooks)"
-    },
-    {
-      "name": "ecc",
-      "source": {
-        "source": "github",
-        "repo": "affaan-m/everything-claude-code",
-        "protocol": "https"
-      },
-      "description": "HEAVY (903 skills, 68 agents) \u2014 enable selectively"
     }
   ]
 }

@@ -1,34 +1,39 @@
 #!/usr/bin/env bash
-# Point any machine at this stack. Run once per machine, per account.
-#   ./install.sh            plugins only
+# Wire this machine up to the stack. Run once per machine, per account.
+#   ./install.sh            plugins
 #   ./install.sh --mcp      also register MCP servers
-#   ./install.sh --link     also symlink skills for non-Claude agents
 set -uo pipefail
-REPO="${STACK_REPO:-arsimaz/ai-stack}"   # override if you rename it
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="${STACK_REPO:-arsimaz/ai-stack}"
 ok(){ printf '  \033[32m✓\033[0m %s\n' "$*"; }
 no(){ printf '  \033[31m✗\033[0m %s\n' "$*"; }
 
 command -v claude >/dev/null || { no "claude CLI not found"; exit 1; }
 
-echo "== marketplace"
-claude plugin marketplace add "$REPO" >/dev/null 2>&1 \
-  && ok "added $REPO" || ok "$REPO already registered"
-# claude-mem lives in a subdirectory of its repo; re-exporting it does not work
-# (the `path` field is ignored), so add its upstream marketplace directly.
-claude plugin marketplace add thedotmack/claude-mem >/dev/null 2>&1 \
-  && ok "added thedotmack (for claude-mem)" || ok "thedotmack already registered"
+# Each third-party plugin is installed from ITS OWN marketplace, not re-exported
+# from ours. See README "Why upstream marketplaces" — re-exports clone over SSH
+# and fail on any machine without a key.
+echo "== marketplaces"
+for m in "$REPO" obra/superpowers kepano/obsidian-skills \
+         nextlevelbuilder/ui-ux-pro-max-skill thedotmack/claude-mem; do
+  claude plugin marketplace add "$m" >/dev/null 2>&1 && ok "$m" || ok "$m (already present)"
+done
 
 echo "== plugins"
-for p in arsimaz-core superpowers obsidian ui-ux-pro-max; do
-  claude plugin install "$p@arsimaz" >/dev/null 2>&1 && ok "$p" || no "$p (run manually)"
-done
-claude plugin install claude-mem@thedotmack >/dev/null 2>&1 && ok "claude-mem" || no "claude-mem"
-echo "  (omitted by weight — add explicitly if you want them:)"
-echo "     gsd-core  144 skills / 64 agents : claude plugin install gsd-core@arsimaz"
-echo "     ecc       903 skills / 68 agents : claude plugin install ecc@arsimaz"
+install_one(){ claude plugin install "$1" >/dev/null 2>&1 && ok "${1%%@*}" || no "${1%%@*} — claude plugin install $1"; }
+install_one arsimaz-core@arsimaz
+install_one superpowers@superpowers-dev
+install_one obsidian@obsidian-skills
+install_one ui-ux-pro-max@ui-ux-pro-max-skill
+install_one claude-mem@thedotmack
 
-if [[ "${1:-}" == "--mcp" || "${2:-}" == "--mcp" ]]; then
+echo
+echo "  Omitted by weight — add explicitly if you want them:"
+echo "    gsd-core  144 skills / 64 agents:"
+echo "      claude plugin marketplace add open-gsd/gsd-core && claude plugin install gsd-core@gsd-core"
+echo "    ecc       903 skills / 68 agents:"
+echo "      claude plugin marketplace add affaan-m/everything-claude-code && claude plugin install ecc@ecc"
+
+if [[ "${1:-}" == "--mcp" ]]; then
   echo "== mcp"
   if [[ -n "${N8N_API_URL:-}" && -n "${N8N_API_KEY:-}" ]]; then
     claude mcp add n8n-mcp -e N8N_API_URL="$N8N_API_URL" -e N8N_API_KEY="$N8N_API_KEY" \
@@ -38,11 +43,4 @@ if [[ "${1:-}" == "--mcp" || "${2:-}" == "--mcp" ]]; then
   fi
 fi
 
-if [[ "${1:-}" == "--link" || "${2:-}" == "--link" ]]; then
-  echo "== cross-tool links"
-  for t in "$HOME/.codex" "$HOME/.cursor" "$HOME/.config/opencode"; do
-    [[ -d "$t" ]] && ln -sfn "$HERE/plugins/arsimaz-core/skills" "$t/skills" && ok "$t/skills"
-  done
-fi
-
-echo; echo "Restart your editor / CLI. Verify: claude plugin list"
+echo; echo "Restart Claude Code. Verify: claude plugin list"

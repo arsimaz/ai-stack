@@ -38,36 +38,44 @@ chain them with `&&` on a single line.
 | Codex / Cursor / OpenCode / Gemini | `AGENTS.md` at the repo root (`CLAUDE.md` and `GEMINI.md` symlink to it); `./install.sh --link` symlinks the skills dir |
 | Other people | make the repo public — anyone can `marketplace add` it |
 
-## Known limitation: subdirectory plugins
+## Why upstream marketplaces
 
-A marketplace can re-export a third-party plugin that sits at its **repo root**.
-It cannot re-export one that lives in a **subdirectory** — the `path` field on a
-`github` source is silently ignored, and you get the repo root instead (which
-installs with zero components, with no error).
+This repo does NOT re-export third-party plugins, even though the manifest
+format allows it. Two failures made re-export unusable:
 
-`claude-mem` is such a plugin (`thedotmack/claude-mem` → `./plugin`), so it is
-NOT in this marketplace. `install.sh` adds its upstream marketplace instead:
+1. **Subdirectory plugins install empty.** `path` on a `github` source is
+   silently ignored, so you get the repo root — zero components, no error.
+2. **Re-exports clone over SSH.** A `github` source resolves to
+   `git@github.com:` at install time and dies with
+   `Permission denied (publickey)` on any machine without an SSH key.
+   `"protocol": "https"` validates but is ignored. `marketplace add` has an
+   HTTPS fallback; the plugin-install path does not.
+
+So `install.sh` adds each third-party marketplace directly. The marketplace
+clone uses the HTTPS fallback, and the plugin then installs from local disk —
+no second clone, no SSH. One command still does everything; it just registers
+five marketplaces instead of one.
+
+This repo's own marketplace carries `arsimaz-core` only.
+
+After installing, confirm nothing landed empty:
 
 ```bash
-claude plugin marketplace add thedotmack/claude-mem
-claude plugin install claude-mem@thedotmack
+claude plugin details <name>    # zero components == broken source
 ```
-
-Verify any re-export actually landed with `claude plugin details <name>` — a
-zero-component inventory means the source path is wrong.
 
 ## Weight
 
 Measured with `claude plugin details` after install:
 
-| Plugin | Skills | Agents | Hooks |
-|---|---|---|---|
-| obsidian | 6 | 0 | 0 |
-| ui-ux-pro-max | 7 | 0 | 0 |
-| superpowers | 15 | 0 | 1 |
-| claude-mem | 20 | 0 | 7 |
-| gsd-core | 144 | 64 | 7 |
-| ecc | ~903 | 68 | 6 |
+| Plugin | Marketplace | Skills | Agents | Hooks |
+|---|---|---|---|---|
+| obsidian | `obsidian-skills` | 6 | 0 | 0 |
+| ui-ux-pro-max | `ui-ux-pro-max-skill` | 7 | 0 | 0 |
+| superpowers | `superpowers-dev` | 15 | 0 | 1 |
+| claude-mem | `thedotmack` | 20 | 0 | 7 |
+| gsd-core | `gsd-core` | 144 | 64 | 7 |
+| ecc | `ecc` | ~903 | 68 | 6 |
 
 `gsd-core` and `ecc` are an order of magnitude heavier than the rest. Both are
 excluded from `install.sh`'s default set for that reason.
